@@ -14,7 +14,7 @@ interface Step {
 
 const STEPS: Step[] = [
   {
-    instruction: "Tap the triangle to flip it green.",
+    instruction: "Tap the magenta triangle to clear it.",
     build: () => generatePuzzle(Math.random, { mask: TUTORIAL_MASK_SINGLE, targetTaps: 1 }),
   },
   {
@@ -29,8 +29,7 @@ const STEPS: Step[] = [
 
 export default function Tutorial() {
   const [stepIdx, setStepIdx] = useState(0);
-  const step = STEPS[stepIdx];
-  const [puzzle, setPuzzle] = useState<TrianglePuzzle>(() => step.build());
+  const [puzzle, setPuzzle] = useState<TrianglePuzzle>(() => STEPS[0].build());
   const [tapsRemaining, setTapsRemaining] = useState(puzzle.targetTaps);
   const [done, setDone] = useState(false);
 
@@ -40,6 +39,9 @@ export default function Tutorial() {
     setTapsRemaining(fresh.targetTaps);
     setDone(false);
   }, [stepIdx]);
+
+  const step = STEPS[stepIdx];
+  const isLast = stepIdx === STEPS.length - 1;
 
   const counterColor = useMemo(() => {
     if (tapsRemaining < 0) return "var(--red)";
@@ -68,16 +70,12 @@ export default function Tutorial() {
   }
 
   function next() {
-    if (stepIdx < STEPS.length - 1) {
-      setStepIdx(stepIdx + 1);
-    }
+    if (stepIdx < STEPS.length - 1) setStepIdx(stepIdx + 1);
   }
 
-  const isLast = stepIdx === STEPS.length - 1;
-
   return (
-    <div className="world-tron tron-grid-bg h-screen flex flex-col">
-      <div className="flex items-center justify-between px-5 pt-5">
+    <div className="world-tron tron-grid-bg h-screen flex flex-col relative">
+      <div className="flex items-center justify-between px-5 pt-5 shrink-0">
         <Link href="/" className="text-sm" style={{ color: "var(--muted)" }}>
           ← Skip
         </Link>
@@ -94,19 +92,19 @@ export default function Tutorial() {
         </div>
       </div>
 
-      <div className="px-6 mt-4 text-center">
+      <div className="px-6 mt-4 text-center shrink-0">
         <p className="text-base" style={{ color: "var(--fg)" }}>
           {step.instruction}
         </p>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-4">
+      <div className="flex-1 flex items-center justify-center px-4 min-h-0">
         <svg
           viewBox={`-0.15 -0.15 ${VIEW_W + 0.3} ${VIEW_H + 0.3}`}
           className="w-full"
           style={{
-            maxHeight: "55vh",
-            maxWidth: `min(90vw, ${(VIEW_W / VIEW_H) * 55}vh)`,
+            maxHeight: "48vh",
+            maxWidth: `min(88vw, ${(VIEW_W / VIEW_H) * 48}vh)`,
           }}
           preserveAspectRatio="xMidYMid meet"
         >
@@ -141,26 +139,8 @@ export default function Tutorial() {
         </svg>
       </div>
 
-      <div className="px-6 pb-8 flex flex-col gap-3 items-center">
-        {done ? (
-          isLast ? (
-            <Link
-              href="/"
-              className="rounded-full px-6 py-3 text-base font-semibold"
-              style={{ background: "var(--cyan)", color: "#001016" }}
-            >
-              Done — pick a world
-            </Link>
-          ) : (
-            <button
-              onClick={next}
-              className="rounded-full px-6 py-3 text-base font-semibold"
-              style={{ background: "var(--cyan)", color: "#001016" }}
-            >
-              Next step →
-            </button>
-          )
-        ) : (
+      <div className="shrink-0 px-6 pb-6 flex justify-center">
+        {!done ? (
           <button
             onClick={handleReset}
             className="rounded-full px-4 py-1.5 text-xs"
@@ -172,8 +152,49 @@ export default function Tutorial() {
           >
             Try again
           </button>
-        )}
+        ) : null}
       </div>
+
+      {done ? (
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center px-6 pointer-events-none"
+          style={{ background: "rgba(5, 7, 15, 0.78)" }}
+        >
+          <div className="text-center pointer-events-auto">
+            <div className="text-[10px] uppercase tracking-[0.4em]" style={{ color: "var(--cyan)" }}>
+              Step {stepIdx + 1} cleared
+            </div>
+            <h2 className="mt-2 text-3xl font-extrabold tron-text">
+              {isLast ? "Tutorial complete" : "Nice."}
+            </h2>
+            {isLast ? (
+              <Link
+                href="/"
+                className="mt-8 inline-block rounded-full px-6 py-3 text-base font-semibold"
+                style={{
+                  background: "var(--cyan)",
+                  color: "#001016",
+                  boxShadow: "0 0 24px rgba(0, 229, 255, 0.5)",
+                }}
+              >
+                Pick a world →
+              </Link>
+            ) : (
+              <button
+                onClick={next}
+                className="mt-8 inline-block rounded-full px-6 py-3 text-base font-semibold"
+                style={{
+                  background: "var(--cyan)",
+                  color: "#001016",
+                  boxShadow: "0 0 24px rgba(0, 229, 255, 0.5)",
+                }}
+              >
+                Next step →
+              </button>
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

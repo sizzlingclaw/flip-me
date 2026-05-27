@@ -21,6 +21,9 @@ export async function getLevelPuzzle(world: World, level: number): Promise<Puzzl
     .eq("level", level)
     .maybeSingle<PuzzleRow>();
 
+  if (error) {
+    console.error(`[puzzles-repo] ${world}/${level} fetch error:`, error.message, error.details ?? "");
+  }
   if (error || !data) return null;
 
   const startState = data.start_state.map((s) => (s === "red" ? "red" : "green")) as Color[];
