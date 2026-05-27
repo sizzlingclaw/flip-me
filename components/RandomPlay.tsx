@@ -55,7 +55,7 @@ export default function RandomPlay({ world, playerName }: Props) {
 
 function Loading({ tint }: { tint: string }) {
   return (
-    <div className="h-screen flex items-center justify-center text-sm" style={{ color: tint }}>
+    <div className="h-dvh flex items-center justify-center text-sm" style={{ color: tint }}>
       Spinning up…
     </div>
   );

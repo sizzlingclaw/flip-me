@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { trianglePoints, VIEW_H, VIEW_W } from "@/lib/grid";
 import { generatePuzzle, isSolved, tapSlot } from "@/lib/puzzle";
+import { playTronZap } from "@/lib/sfx";
 import { TUTORIAL_MASK_DIAMOND, TUTORIAL_MASK_ROW, TUTORIAL_MASK_SINGLE } from "@/lib/masks";
 import type { TrianglePuzzle } from "@/lib/types";
 
@@ -53,6 +54,7 @@ export default function Tutorial() {
     if (done) return;
     const slot = puzzle.slots[slotIndex];
     if (!slot.active) return;
+    playTronZap();
     const { slots: next } = tapSlot(puzzle.slots, slotIndex);
     const remaining = tapsRemaining - 1;
     setPuzzle({ ...puzzle, slots: next });
@@ -74,7 +76,7 @@ export default function Tutorial() {
   }
 
   return (
-    <div className="world-tron tron-grid-bg h-screen flex flex-col relative">
+    <div className="world-tron tron-grid-bg h-dvh flex flex-col relative">
       <div className="flex items-center justify-between px-5 pt-5 shrink-0">
         <Link href="/" className="text-sm" style={{ color: "var(--muted)" }}>
           ← Skip

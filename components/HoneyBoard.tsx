@@ -5,6 +5,7 @@ import BottomNav from "./BottomNav";
 import HoneyVictory from "./HoneyVictory";
 import { HEX_VIEW_H, HEX_VIEW_W, hexCenter, hexPoints } from "@/lib/hex";
 import { isHexSolved, tapHexCell } from "@/lib/puzzle-hex";
+import { playHoneyDrop } from "@/lib/sfx";
 import type { HexPuzzle } from "@/lib/types";
 
 interface Props {
@@ -48,6 +49,7 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
     const cell = puzzle.cells[slotIndex];
     if (!cell.active) return;
 
+    playHoneyDrop();
     const { cells: next, flipped } = tapHexCell(puzzle.cells, slotIndex);
     const nextPuzzle: HexPuzzle = { ...puzzle, cells: next };
     const remaining = tapsRemaining - 1;
@@ -104,11 +106,16 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
   }
 
   return (
-    <div className="world-honey h-screen flex flex-col">
+    <div className="world-honey h-dvh flex flex-col">
       <div className="honey-comb-bg flex-1 flex flex-col">
         <div className="flex items-center justify-between px-5 pt-5">
-          <div className="text-xs uppercase tracking-widest honey-text">
-            {level === "random" ? "Wild swarm" : `Level ${level}`}
+          <div>
+            <div className="text-xs uppercase tracking-widest honey-text">
+              {level === "random" ? "Wild swarm" : `Level ${level}`}
+            </div>
+            <div className="text-[10px] mt-0.5" style={{ color: "rgba(255, 198, 58, 0.6)" }}>
+              Turn every hex gold
+            </div>
           </div>
           <div className="text-right">
             <div className="text-[10px] uppercase tracking-widest" style={{ color: "var(--muted)" }}>
@@ -120,13 +127,13 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center px-4">
+        <div className="flex-1 min-h-0 flex items-center justify-center px-4">
           <svg
             viewBox={`-0.2 -0.2 ${HEX_VIEW_W + 0.4} ${HEX_VIEW_H + 0.4}`}
-            className="w-full"
+            className="w-full h-full"
             style={{
-              maxHeight: "62vh",
-              maxWidth: `min(92vw, ${(HEX_VIEW_W / HEX_VIEW_H) * 62}vh)`,
+              maxHeight: "100%",
+              maxWidth: `min(92vw, ${(HEX_VIEW_W / HEX_VIEW_H) * 100}%)`,
             }}
             preserveAspectRatio="xMidYMid meet"
           >

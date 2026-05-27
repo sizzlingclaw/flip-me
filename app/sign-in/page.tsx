@@ -16,7 +16,7 @@ export default async function SignInPage({
   const { error } = await searchParams;
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen px-6 gap-8">
+    <div className="flex flex-col items-center justify-center h-dvh px-6 gap-8">
       <div className="text-center">
         <h1 className="text-5xl font-extrabold tracking-tight" style={{ color: "var(--cyan)" }}>
           Flip Me

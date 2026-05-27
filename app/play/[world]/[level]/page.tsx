@@ -27,7 +27,7 @@ export default async function PlayLevelPage({
   const puzzle = await getLevelPuzzle(world, level);
   if (!puzzle) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center px-6 gap-4">
+      <div className="h-dvh flex flex-col items-center justify-center px-6 gap-4">
         <p className="text-sm" style={{ color: "var(--muted)" }}>
           Level {level} is not seeded yet.
         </p>

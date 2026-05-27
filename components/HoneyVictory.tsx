@@ -36,7 +36,7 @@ export default function HoneyVictory({ playerName, level, onPlayAgain }: Props) 
     typeof level === "number" && level < LEVELS_PER_WORLD ? level + 1 : null;
 
   return (
-    <div className="world-honey honey-comb-bg relative h-screen overflow-hidden flex flex-col items-center justify-center px-6">
+    <div className="world-honey honey-comb-bg relative h-dvh overflow-hidden flex flex-col items-center justify-center px-6">
       <div className="pointer-events-none absolute inset-0">
         {bubbles.map((b, i) => (
           <span

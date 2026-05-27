@@ -6,7 +6,7 @@ interface Props {
 
 export default function WorldSelector({ name }: Props) {
   return (
-    <div className="relative h-screen flex flex-col items-center justify-center px-6 gap-8">
+    <div className="relative h-dvh flex flex-col items-center justify-center px-6 gap-8">
       <Link
         href="/tutorial"
         className="absolute top-4 right-4 text-sm underline"
