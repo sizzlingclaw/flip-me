@@ -7,10 +7,13 @@ import { LEVELS_PER_WORLD } from "@/lib/types";
 interface Props {
   playerName: string;
   level: number | "random";
+  tapsRemaining: number;
   onPlayAgain: () => void;
 }
 
-export default function TronVictory({ playerName, level, onPlayAgain }: Props) {
+export default function TronVictory({ playerName, level, tapsRemaining, onPlayAgain }: Props) {
+  const perfect = tapsRemaining === 0;
+  const overshoot = tapsRemaining < 0 ? Math.abs(tapsRemaining) : 0;
   const sparks = useMemo(
     () =>
       Array.from({ length: 50 }).map((_, i) => ({
@@ -71,6 +74,13 @@ export default function TronVictory({ playerName, level, onPlayAgain }: Props) {
         <p className="mt-2 text-xs uppercase tracking-[0.4em]" style={{ color: "var(--cyan)" }}>
           Grid cleared, {playerName}
         </p>
+        {perfect ? (
+          <p className="mt-4 text-sm tron-text">Perfect run.</p>
+        ) : (
+          <p className="mt-4 text-sm" style={{ color: "var(--magenta)" }}>
+            {overshoot} tap{overshoot === 1 ? "" : "s"} over. You can still do better.
+          </p>
+        )}
       </div>
 
       <div className="relative z-10 mt-10 flex flex-col gap-3 w-full max-w-xs">

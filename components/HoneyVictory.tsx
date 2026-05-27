@@ -7,10 +7,13 @@ import { LEVELS_PER_WORLD } from "@/lib/types";
 interface Props {
   playerName: string;
   level: number | "random";
+  tapsRemaining: number;
   onPlayAgain: () => void;
 }
 
-export default function HoneyVictory({ playerName, level, onPlayAgain }: Props) {
+export default function HoneyVictory({ playerName, level, tapsRemaining, onPlayAgain }: Props) {
+  const perfect = tapsRemaining === 0;
+  const overshoot = tapsRemaining < 0 ? Math.abs(tapsRemaining) : 0;
   const bubbles = useMemo(
     () =>
       Array.from({ length: 45 }).map(() => ({
@@ -75,6 +78,13 @@ export default function HoneyVictory({ playerName, level, onPlayAgain }: Props) 
         <p className="mt-6 text-sm" style={{ color: "rgba(255, 198, 58, 0.85)" }}>
           Nicely done, {playerName}.
         </p>
+        {perfect ? (
+          <p className="mt-2 text-xs honey-text">Perfect run.</p>
+        ) : (
+          <p className="mt-2 text-xs" style={{ color: "var(--plum)" }}>
+            {overshoot} tap{overshoot === 1 ? "" : "s"} over. You can still do better.
+          </p>
+        )}
       </div>
 
       <Bee />

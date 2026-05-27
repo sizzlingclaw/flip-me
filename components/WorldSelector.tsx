@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { LEVELS_PER_WORLD } from "@/lib/types";
 
 interface Props {
   name: string;
+  tronCleared: number;
+  honeyCleared: number;
 }
 
-export default function WorldSelector({ name }: Props) {
+export default function WorldSelector({ name, tronCleared, honeyCleared }: Props) {
   return (
     <div className="relative h-dvh flex flex-col items-center justify-center px-6 gap-8">
       <Link
@@ -39,9 +42,14 @@ export default function WorldSelector({ name }: Props) {
               Triangles
             </span>
           </div>
-          <p className="mt-2 text-xs" style={{ color: "rgba(0, 229, 255, 0.7)" }}>
-            Neon grid. Electric flips.
-          </p>
+          <div className="mt-2 flex items-baseline justify-between">
+            <p className="text-xs" style={{ color: "rgba(0, 229, 255, 0.7)" }}>
+              Neon grid. Electric flips.
+            </p>
+            <p className="text-xs tabular-nums" style={{ color: "var(--cyan)" }}>
+              {tronCleared}/{LEVELS_PER_WORLD} cleared
+            </p>
+          </div>
         </Link>
 
         <Link
@@ -55,9 +63,14 @@ export default function WorldSelector({ name }: Props) {
               Hexagons
             </span>
           </div>
-          <p className="mt-2 text-xs" style={{ color: "rgba(255, 198, 58, 0.7)" }}>
-            Sweet combs. Sticky drops.
-          </p>
+          <div className="mt-2 flex items-baseline justify-between">
+            <p className="text-xs" style={{ color: "rgba(255, 198, 58, 0.7)" }}>
+              Sweet combs. Sticky drops.
+            </p>
+            <p className="text-xs tabular-nums" style={{ color: "var(--gold)" }}>
+              {honeyCleared}/{LEVELS_PER_WORLD} cleared
+            </p>
+          </div>
         </Link>
       </div>
     </div>

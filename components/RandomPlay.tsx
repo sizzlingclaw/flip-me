@@ -10,9 +10,10 @@ import type { HexPuzzle, TrianglePuzzle, World } from "@/lib/types";
 interface Props {
   world: World;
   playerName: string;
+  completedLevels?: number[];
 }
 
-export default function RandomPlay({ world, playerName }: Props) {
+export default function RandomPlay({ world, playerName, completedLevels = [] }: Props) {
   const [tronPuzzle, setTronPuzzle] = useState<TrianglePuzzle | null>(null);
   const [hexPuzzle, setHexPuzzle] = useState<HexPuzzle | null>(null);
 
@@ -36,6 +37,7 @@ export default function RandomPlay({ world, playerName }: Props) {
         level="random"
         playerName={playerName}
         reshuffleRandom={() => generatePuzzle()}
+        completedLevels={completedLevels}
       />
     );
   }
@@ -49,6 +51,7 @@ export default function RandomPlay({ world, playerName }: Props) {
       level="random"
       playerName={playerName}
       reshuffleRandom={() => generateHexPuzzle()}
+      completedLevels={completedLevels}
     />
   );
 }

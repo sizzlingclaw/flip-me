@@ -6,6 +6,7 @@ import TronVictory from "./TronVictory";
 import { trianglePoints, VIEW_H, VIEW_W, triangleCentroid } from "@/lib/grid";
 import { isSolved, tapSlot } from "@/lib/puzzle";
 import { playTronZap } from "@/lib/sfx";
+import { recordCompletion } from "@/app/actions/progress";
 import type { TrianglePuzzle } from "@/lib/types";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
   level: number | "random";
   playerName: string;
   reshuffleRandom?: () => TrianglePuzzle;
+  completedLevels?: number[];
 }
 
 interface ZapBurst {
@@ -21,13 +23,20 @@ interface ZapBurst {
   y: number;
 }
 
-export default function TronBoard({ puzzle: initial, level, playerName, reshuffleRandom }: Props) {
+interface HistoryEntry {
+  slots: TrianglePuzzle["slots"];
+  tapsRemaining: number;
+}
+
+export default function TronBoard({ puzzle: initial, level, playerName, reshuffleRandom, completedLevels = [] }: Props) {
   const [puzzle, setPuzzle] = useState<TrianglePuzzle>(initial);
   const [tapsRemaining, setTapsRemaining] = useState(initial.targetTaps);
   const [flippedKey, setFlippedKey] = useState(0);
   const [flippedSet, setFlippedSet] = useState<Set<number>>(new Set());
   const [bursts, setBursts] = useState<ZapBurst[]>([]);
   const [victory, setVictory] = useState(false);
+  const [victoryTaps, setVictoryTaps] = useState(0);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
     setPuzzle(initial);
@@ -35,6 +44,7 @@ export default function TronBoard({ puzzle: initial, level, playerName, reshuffl
     setFlippedSet(new Set());
     setBursts([]);
     setVictory(false);
+    setHistory([]);
   }, [initial]);
 
   const counterColor = useMemo(() => {
@@ -49,6 +59,8 @@ export default function TronBoard({ puzzle: initial, level, playerName, reshuffl
     if (!slot.active) return;
 
     playTronZap();
+    setHistory((h) => [...h, { slots: puzzle.slots, tapsRemaining }]);
+
     const { slots: next, flipped } = tapSlot(puzzle.slots, slotIndex);
     const nextPuzzle: TrianglePuzzle = { ...puzzle, slots: next };
     const remaining = tapsRemaining - 1;
@@ -64,9 +76,24 @@ export default function TronBoard({ puzzle: initial, level, playerName, reshuffl
       setBursts((b) => b.filter((bu) => bu.key !== burstKey));
     }, 450);
 
-    if (isSolved(next) && remaining === 0) {
+    if (isSolved(next) && remaining <= 0) {
+      const tapsUsed = initial.targetTaps - remaining;
+      setVictoryTaps(remaining);
+      if (typeof level === "number") {
+        void recordCompletion("tron", level, tapsUsed);
+      }
       window.setTimeout(() => setVictory(true), 380);
     }
+  }
+
+  function handleUndo() {
+    if (victory || history.length === 0) return;
+    const prev = history[history.length - 1];
+    setHistory((h) => h.slice(0, -1));
+    setPuzzle({ ...puzzle, slots: prev.slots });
+    setTapsRemaining(prev.tapsRemaining);
+    setFlippedSet(new Set());
+    setFlippedKey((k) => k + 1);
   }
 
   function handleReset() {
@@ -81,6 +108,7 @@ export default function TronBoard({ puzzle: initial, level, playerName, reshuffl
     setFlippedSet(new Set());
     setBursts([]);
     setVictory(false);
+    setHistory([]);
   }
 
   if (victory) {
@@ -88,6 +116,7 @@ export default function TronBoard({ puzzle: initial, level, playerName, reshuffl
       <TronVictory
         playerName={playerName}
         level={level}
+        tapsRemaining={victoryTaps}
         onPlayAgain={handleReset}
       />
     );
@@ -162,7 +191,19 @@ export default function TronBoard({ puzzle: initial, level, playerName, reshuffl
           </svg>
         </div>
 
-        <div className="flex justify-center pb-3">
+        <div className="flex justify-center gap-2 pb-3">
+          <button
+            onClick={handleUndo}
+            disabled={history.length === 0}
+            className="rounded-full px-4 py-1.5 text-xs disabled:opacity-40"
+            style={{
+              background: "rgba(0, 229, 255, 0.08)",
+              border: "1px solid rgba(0, 229, 255, 0.4)",
+              color: "var(--cyan)",
+            }}
+          >
+            ↶ Undo
+          </button>
           <button
             onClick={handleReset}
             className="rounded-full px-4 py-1.5 text-xs"
@@ -177,7 +218,7 @@ export default function TronBoard({ puzzle: initial, level, playerName, reshuffl
         </div>
       </div>
 
-      <BottomNav world="tron" currentLevel={level} />
+      <BottomNav world="tron" currentLevel={level} completedLevels={completedLevels} />
     </div>
   );
 }

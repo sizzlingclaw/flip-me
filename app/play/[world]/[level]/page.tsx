@@ -3,6 +3,7 @@ import TronBoard from "@/components/TronBoard";
 import HoneyBoard from "@/components/HoneyBoard";
 import { createClient } from "@/lib/supabase/server";
 import { getLevelPuzzle } from "@/lib/puzzles-repo";
+import { getCompletedLevels } from "@/lib/progress";
 import { LEVELS_PER_WORLD, type World } from "@/lib/types";
 import { playerNameFromUser } from "@/lib/user";
 
@@ -24,7 +25,11 @@ export default async function PlayLevelPage({
   if (!user) redirect("/sign-in");
 
   const playerName = playerNameFromUser(user);
-  const puzzle = await getLevelPuzzle(world, level);
+  const [puzzle, completedMap] = await Promise.all([
+    getLevelPuzzle(world, level),
+    getCompletedLevels(world),
+  ]);
+  const completedLevels = Array.from(completedMap.keys());
   if (!puzzle) {
     return (
       <div className="h-dvh flex flex-col items-center justify-center px-6 gap-4">
@@ -39,7 +44,7 @@ export default async function PlayLevelPage({
   }
 
   if (puzzle.world === "tron") {
-    return <TronBoard puzzle={puzzle} level={level} playerName={playerName} />;
+    return <TronBoard puzzle={puzzle} level={level} playerName={playerName} completedLevels={completedLevels} />;
   }
-  return <HoneyBoard puzzle={puzzle} level={level} playerName={playerName} />;
+  return <HoneyBoard puzzle={puzzle} level={level} playerName={playerName} completedLevels={completedLevels} />;
 }

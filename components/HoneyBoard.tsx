@@ -6,6 +6,7 @@ import HoneyVictory from "./HoneyVictory";
 import { HEX_VIEW_H, HEX_VIEW_W, hexCenter, hexPoints } from "@/lib/hex";
 import { isHexSolved, tapHexCell } from "@/lib/puzzle-hex";
 import { playHoneyDrop } from "@/lib/sfx";
+import { recordCompletion } from "@/app/actions/progress";
 import type { HexPuzzle } from "@/lib/types";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
   level: number | "random";
   playerName: string;
   reshuffleRandom?: () => HexPuzzle;
+  completedLevels?: number[];
 }
 
 interface HoneyBurst {
@@ -22,13 +24,20 @@ interface HoneyBurst {
   drops: Array<{ dx: number; dy: number; r: number; dur: number; delay: number }>;
 }
 
-export default function HoneyBoard({ puzzle: initial, level, playerName, reshuffleRandom }: Props) {
+interface HexHistoryEntry {
+  cells: HexPuzzle["cells"];
+  tapsRemaining: number;
+}
+
+export default function HoneyBoard({ puzzle: initial, level, playerName, reshuffleRandom, completedLevels = [] }: Props) {
   const [puzzle, setPuzzle] = useState<HexPuzzle>(initial);
   const [tapsRemaining, setTapsRemaining] = useState(initial.targetTaps);
   const [flippedKey, setFlippedKey] = useState(0);
   const [flippedSet, setFlippedSet] = useState<Set<number>>(new Set());
   const [bursts, setBursts] = useState<HoneyBurst[]>([]);
   const [victory, setVictory] = useState(false);
+  const [victoryTaps, setVictoryTaps] = useState(0);
+  const [history, setHistory] = useState<HexHistoryEntry[]>([]);
 
   useEffect(() => {
     setPuzzle(initial);
@@ -36,6 +45,7 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
     setFlippedSet(new Set());
     setBursts([]);
     setVictory(false);
+    setHistory([]);
   }, [initial]);
 
   const counterColor = useMemo(() => {
@@ -50,6 +60,7 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
     if (!cell.active) return;
 
     playHoneyDrop();
+    setHistory((h) => [...h, { cells: puzzle.cells, tapsRemaining }]);
     const { cells: next, flipped } = tapHexCell(puzzle.cells, slotIndex);
     const nextPuzzle: HexPuzzle = { ...puzzle, cells: next };
     const remaining = tapsRemaining - 1;
@@ -76,9 +87,24 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
       setBursts((b) => b.filter((bu) => bu.key !== burstKey));
     }, 1200);
 
-    if (isHexSolved(next) && remaining === 0) {
+    if (isHexSolved(next) && remaining <= 0) {
+      const tapsUsed = initial.targetTaps - remaining;
+      setVictoryTaps(remaining);
+      if (typeof level === "number") {
+        void recordCompletion("honey", level, tapsUsed);
+      }
       window.setTimeout(() => setVictory(true), 460);
     }
+  }
+
+  function handleUndo() {
+    if (victory || history.length === 0) return;
+    const prev = history[history.length - 1];
+    setHistory((h) => h.slice(0, -1));
+    setPuzzle({ ...puzzle, cells: prev.cells });
+    setTapsRemaining(prev.tapsRemaining);
+    setFlippedSet(new Set());
+    setFlippedKey((k) => k + 1);
   }
 
   function handleReset() {
@@ -93,6 +119,7 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
     setFlippedSet(new Set());
     setBursts([]);
     setVictory(false);
+    setHistory([]);
   }
 
   if (victory) {
@@ -100,6 +127,7 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
       <HoneyVictory
         playerName={playerName}
         level={level}
+        tapsRemaining={victoryTaps}
         onPlayAgain={handleReset}
       />
     );
@@ -190,7 +218,19 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
           </svg>
         </div>
 
-        <div className="flex justify-center pb-3">
+        <div className="flex justify-center gap-2 pb-3">
+          <button
+            onClick={handleUndo}
+            disabled={history.length === 0}
+            className="rounded-full px-4 py-1.5 text-xs disabled:opacity-40"
+            style={{
+              background: "rgba(255, 198, 58, 0.10)",
+              border: "1px solid rgba(255, 198, 58, 0.45)",
+              color: "var(--gold)",
+            }}
+          >
+            ↶ Undo
+          </button>
           <button
             onClick={handleReset}
             className="rounded-full px-4 py-1.5 text-xs"
@@ -205,7 +245,7 @@ export default function HoneyBoard({ puzzle: initial, level, playerName, reshuff
         </div>
       </div>
 
-      <BottomNav world="honey" currentLevel={level} />
+      <BottomNav world="honey" currentLevel={level} completedLevels={completedLevels} />
     </div>
   );
 }
