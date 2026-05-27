@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+.env*
+!.env.example
+*.log
+.DS_Store
+.vercel
+tsconfig.tsbuildinfo
+next-env.d.ts.bak
+certs/
+supabase/migrations/apply-all.sql

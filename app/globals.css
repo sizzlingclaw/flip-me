@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0b0f1a;
+  --fg: #f4f6fb;
+  --muted: #7b8294;
+  --cyan: #00e5ff;
+  --cyan-deep: #006a78;
+  --magenta: #ff2bd6;
+  --magenta-deep: #802366;
+  --gold: #ffc63a;
+  --gold-deep: #c47a1c;
+  --plum: #6b2347;
+  --plum-deep: #3c0e25;
+  --red: #ff4d5a;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+body {
+  overflow: hidden;
+}
+
+button { font: inherit; }
+
+/* ---------- Tron world ---------- */
+.world-tron {
+  background:
+    radial-gradient(ellipse at top, rgba(0, 229, 255, 0.08), transparent 60%),
+    #05070f;
+}
+.tron-grid-bg {
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.tron-text { color: var(--cyan); text-shadow: 0 0 10px rgba(0, 229, 255, 0.55), 0 0 22px rgba(0, 229, 255, 0.25); }
+.tron-text-mag { color: var(--magenta); text-shadow: 0 0 10px rgba(255, 43, 214, 0.55), 0 0 22px rgba(255, 43, 214, 0.25); }
+.tri-stroke-tron { stroke: rgba(255, 255, 255, 0.85); stroke-width: 0.04; stroke-linejoin: round; filter: drop-shadow(0 0 0.1px var(--cyan)); }
+.tri-inactive-tron { fill: rgba(0, 229, 255, 0.04); stroke: rgba(0, 229, 255, 0.18); stroke-width: 0.03; stroke-dasharray: 0.08 0.08; }
+
+@keyframes zap-burst {
+  0%   { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: -1.4; opacity: 0; }
+}
+.zap-ray {
+  stroke: var(--cyan);
+  stroke-width: 0.06;
+  stroke-linecap: round;
+  stroke-dasharray: 0.7 0.7;
+  filter: drop-shadow(0 0 0.08px var(--cyan)) drop-shadow(0 0 0.18px rgba(0, 229, 255, 0.6));
+  animation: zap-burst 380ms ease-out forwards;
+}
+
+@keyframes tri-flip-glow {
+  0%   { filter: drop-shadow(0 0 0 transparent); }
+  40%  { filter: drop-shadow(0 0 0.2px #fff) drop-shadow(0 0 0.6px var(--cyan)); }
+  100% { filter: drop-shadow(0 0 0 transparent); }
+}
+.tri-flip {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tri-flip-glow 380ms ease-out;
+}
+
+/* ---------- Honey world ---------- */
+.world-honey {
+  background:
+    radial-gradient(ellipse at top, rgba(255, 198, 58, 0.10), transparent 60%),
+    #1a0e05;
+}
+.honey-comb-bg {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255, 198, 58, 0.05) 0, transparent 18%),
+    radial-gradient(circle at 80% 60%, rgba(255, 198, 58, 0.04) 0, transparent 20%);
+}
+.honey-text { color: var(--gold); text-shadow: 0 0 8px rgba(255, 198, 58, 0.55), 0 1px 0 rgba(0,0,0,0.4); }
+.hex-stroke-honey { stroke: rgba(60, 30, 0, 0.55); stroke-width: 0.05; stroke-linejoin: round; }
+.hex-inactive-honey { fill: rgba(255, 198, 58, 0.04); stroke: rgba(255, 198, 58, 0.15); stroke-width: 0.04; stroke-dasharray: 0.1 0.1; }
+
+@keyframes honey-drop {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.4); opacity: 0; }
+}
+.honey-drop {
+  fill: var(--gold);
+  filter: drop-shadow(0 0 0.05px rgba(0,0,0,0.4));
+  animation: honey-drop var(--dur, 720ms) cubic-bezier(0.4, 0.1, 0.6, 1) forwards;
+}
+
+@keyframes hex-flip-bloom {
+  0%   { filter: drop-shadow(0 0 0 transparent); }
+  40%  { filter: drop-shadow(0 0 0.3px #fff7d6) drop-shadow(0 0 0.7px var(--gold)); }
+  100% { filter: drop-shadow(0 0 0 transparent); }
+}
+.hex-flip {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hex-flip-bloom 480ms ease-out;
+}
+
+/* ---------- Shared confetti / victory ---------- */
+@keyframes confetti-fall {
+  0%   { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate3d(var(--dx, 0), 110vh, 0) rotate(720deg); opacity: 0.8; }
+}
+.confetti-piece {
+  position: absolute;
+  top: 0;
+  width: 10px;
+  height: 14px;
+  border-radius: 2px;
+  animation: confetti-fall var(--dur, 2.4s) linear forwards;
+}
+
+@keyframes scan-sweep {
+  0%   { transform: translateY(-100%); opacity: 0.0; }
+  20%  { opacity: 0.8; }
+  100% { transform: translateY(120vh); opacity: 0.0; }
+}
+.scan-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 229, 255, 0.45), transparent);
+  animation: scan-sweep var(--dur, 1.6s) linear forwards;
+}
+
+@keyframes tron-glitch {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-2px, 1px); }
+  20% { transform: translate(2px, -1px); }
+  30% { transform: translate(-1px, 2px); }
+  40% { transform: translate(1px, -2px); }
+  50% { transform: translate(0, 0); }
+}
+.tron-glitch { animation: tron-glitch 700ms steps(8, end) infinite; }
+
+@keyframes drip {
+  0%   { transform: scaleY(0); opacity: 1; }
+  60%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1) translateY(8px); opacity: 0; }
+}
+.drip {
+  position: absolute;
+  width: 4px;
+  height: var(--len, 24px);
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  border-radius: 0 0 4px 4px;
+  transform-origin: top;
+  animation: drip 1.6s ease-in forwards;
+  animation-delay: var(--delay, 0s);
+}
